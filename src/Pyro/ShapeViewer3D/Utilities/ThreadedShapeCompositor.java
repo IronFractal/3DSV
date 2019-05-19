@@ -11,6 +11,8 @@ public class ThreadedShapeCompositor implements Runnable
   private PShape shape;
   private PApplet applet;
   
+  private boolean blockMap[][][] = new boolean[500][256][500];
+  
   public ThreadedShapeCompositor(PApplet applet)
   {
     
@@ -22,34 +24,24 @@ public class ThreadedShapeCompositor implements Runnable
   public void run()
   {
 
-    PShape box;
-    
     shape = this.applet.createShape(PApplet.GROUP);
     
-    box = applet.createShape(PApplet.BOX, 16);
-    
-    box.noFill();
-    
-    shape.noFill();
-    shape.setStroke(0);
-    box.translate(0, -8, 0);
-    shape.addChild(box);
-    
-    box = applet.createShape(PApplet.BOX, 16);
-    box.translate(0, -32, 0);
-    shape.addChild(box);
-    
-    for (int x = 0; x < 200; x++)
+    for (int x = 0; x < 420; x++)
     {
       
-      for (int z = 0; z < 200; z++)
+      for (int z = 0; z < 500; z++)
       {
         
-        box = applet.createShape(PApplet.BOX, 16);
-        box.noFill();
-        box.noStroke();
-        box.translate(x * 16, -8, z * 16);
-        shape.addChild(box);
+        addBlock(x, 0, z);
+        
+        addBlock(z, 0, x);
+        
+        if (z < 256)
+        {
+          
+          addBlock(0, z, 0);
+          
+        }
         
       }
       
@@ -70,6 +62,91 @@ public class ThreadedShapeCompositor implements Runnable
   {
     
     return this.complete;
+    
+  }
+  
+  private void addBlock(int x, int y, int z)
+  {
+    
+    if (this.blockMap[x][y][z])
+    {
+      
+      return;
+      
+    }
+    
+    PShape box;
+    
+    box = getBox(x, y, z);
+    
+    box.translate((x * 16) - 3992, (y * -16) - 8, (z * 16) - 3992);
+    
+    shape.addChild(box);
+    
+    this.blockMap[x][y][z] = true;
+    
+  }
+  
+  private PShape getBox(int x, int y, int z)
+  {
+    
+    PShape box = applet.createShape();
+    
+    box.beginShape(PApplet.QUADS);
+    box.noFill();
+    box.strokeWeight(1.6f);
+    
+    if (z == 0 || this.blockMap[x][y][z - 1] == false)
+    {
+      
+      //box.stroke(255, 0, 0);
+    
+      box.vertex(-8, -8, -8);
+      box.vertex( 8, -8, -8);
+      box.vertex( 8,  8, -8);
+      box.vertex(-8,  8, -8);
+      
+    }
+
+    if (x == 0 || this.blockMap[x - 1][y][z] == false)
+    {
+      
+      //box.stroke(0, 255, 0);
+    
+      box.vertex(-8, -8, -8);
+      box.vertex(-8,  8, -8);
+      box.vertex(-8,  8,  8);
+      box.vertex(-8, -8,  8);
+      
+    }
+    
+    if (x == 499 || this.blockMap[x + 1][y][z] == false)
+    {
+      
+      //box.stroke(0, 0, 255);
+    
+      box.vertex( 8, -8, -8);
+      box.vertex( 8, -8,  8);
+      box.vertex( 8,  8,  8);
+      box.vertex( 8,  8, -8);
+      
+    }
+    
+    if (z == 499 || this.blockMap[x][y][z + 1] == false)
+    {
+      
+      //box.stroke(0, 0, 0);
+    
+      box.vertex(-8, -8,  8);
+      box.vertex(-8,  8,  8);
+      box.vertex( 8,  8,  8);
+      box.vertex( 8, -8,  8);
+      
+    }
+    
+    box.endShape();
+    
+    return box;
     
   }
 

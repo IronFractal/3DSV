@@ -100,8 +100,11 @@ public class Main extends PApplet
  
       text(this.cam.position.toString(), 10, 34);
       
+      text(String.valueOf(Runtime.getRuntime().totalMemory() / 1073741824.00f) + '/' + 
+           String.valueOf(Runtime.getRuntime().maxMemory() / 1073741824.00f), 10, 46);
+      
       fill(0, 0, 0, 100);
-      rect(0, 0, 120, 80);
+      rect(0, 0, 300, 58);
       
       if (!cam.controllable)
       {
